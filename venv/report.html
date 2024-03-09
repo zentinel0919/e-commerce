@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Sales Report</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    <h1>Sales Report</h1>
+    <form id="reportForm">
+        <label for="secretKey">Enter Secret Key:</label>
+        <input type="text" id="secretKey" name="secretKey" required>
+        <button type="submit">Get Report</button>
+    </form>
+    <table id="reportTable">
+        <thead>
+            <tr>
+                <th>Product</th>
+                <th>Total Sales</th>
+            </tr>
+        </thead>
+        <tbody id="reportBody">
+        </tbody>
+    </table>
+
+    <script>
+        document.getElementById('reportForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const secretKey = document.getElementById('secretKey').value;
+            fetch('/report', {
+                method: 'GET',
+                headers: {
+                    'X-Secret-Key': secretKey
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Unauthorized');
+                }
+                return response.json();
+            })
+            .then(data => {
+                const reportBody = document.getElementById('reportBody');
+                reportBody.innerHTML = '';
+                data.forEach(row => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `<td>${row.product}</td><td>${row.total_sales}</td>`;
+                    reportBody.appendChild(tr);
+                });
+            })
+            .catch(error => console.error('Error:', error));
+        });
+    </script>
+</body>
+</html>
